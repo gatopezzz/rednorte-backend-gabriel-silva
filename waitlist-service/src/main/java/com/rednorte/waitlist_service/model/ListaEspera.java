@@ -1,19 +1,25 @@
 package com.rednorte.waitlist_service.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.*; // Usa javax.persistence.* si usas una versión más antigua de Spring Boot
 
 @Entity
+@Table(name = "lista_espera")
 public class ListaEspera {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    private String emailUsuario;
-    private String asignatura;
+
+    // ESTA ES LA CLAVE: Tiene que llamarse "email" a secas
+    private String email;
+
     private String estado;
 
-    // --- Getters y Setters ---
+    // Constructor vacío exigido por Spring
+    public ListaEspera() {
+    }
+
+    // --- GETTERS Y SETTERS (Sin esto, Java no puede leer el JSON de React) ---
 
     public Long getId() {
         return id;
@@ -23,20 +29,12 @@ public class ListaEspera {
         this.id = id;
     }
 
-    public String getEmailUsuario() {
-        return emailUsuario;
+    public String getEmail() {
+        return email;
     }
 
-    public void setEmailUsuario(String emailUsuario) {
-        this.emailUsuario = emailUsuario;
-    }
-
-    public String getAsignatura() {
-        return asignatura;
-    }
-
-    public void setAsignatura(String asignatura) {
-        this.asignatura = asignatura;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getEstado() {
