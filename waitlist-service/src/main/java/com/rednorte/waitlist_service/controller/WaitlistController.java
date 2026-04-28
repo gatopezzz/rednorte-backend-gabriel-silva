@@ -8,7 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/waitlist")
-@CrossOrigin(origins = "*") // <-- ESTO SOLUCIONA EL ERROR ROJO
+@CrossOrigin(origins = "*")
 public class WaitlistController {
 
     @Autowired
@@ -19,7 +19,7 @@ public class WaitlistController {
         return repository.findAll();
     }
 
-    @PostMapping("/unirse")
+    @PostMapping
     public ListaEspera unirse(@RequestBody ListaEspera entrada) {
         entrada.setEstado("Pendiente");
         return repository.save(entrada);
