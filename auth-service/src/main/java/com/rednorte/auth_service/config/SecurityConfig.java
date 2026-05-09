@@ -3,21 +3,27 @@ package com.rednorte.auth_service.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
 
+    // Aquí le enseñamos a Spring cómo encriptar contraseñas
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    // Aquí dejamos las rutas abiertas temporalmente para poder registrar y loguear
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Apaga la protección por defecto para que podamos enviar datos desde React
-            .csrf(csrf -> csrf.disable()) 
-            // Le decimos que permita todas las peticiones a nuestra API sin mostrar la ventana verde
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll() 
+                .anyRequest().permitAll()
             );
-            
         return http.build();
     }
 }
