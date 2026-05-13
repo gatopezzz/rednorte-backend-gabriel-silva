@@ -4,6 +4,7 @@ import com.rednorte.auth_service.model.Especialidad;
 import com.rednorte.auth_service.model.Rol;
 import com.rednorte.auth_service.model.Usuario;
 import com.rednorte.auth_service.repository.UsuarioRepository;
+// import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -24,6 +27,9 @@ public class AuthController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    // @Autowired
+    // private RabbitTemplate rabbitTemplate;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -76,6 +82,9 @@ public class AuthController {
         nuevoUsuario.setEspecialidad(Especialidad.NINGUNA);
         usuarioRepository.save(nuevoUsuario);
         
+        // ENVÍO DE CORREO ASÍNCRONO
+        // rabbitTemplate.convertAndSend("registro.email.queue", nuevoUsuario.getEmail());
+        
         return ResponseEntity.ok("Usuario registrado con éxito");
     }
 
@@ -115,7 +124,11 @@ public class AuthController {
 
     @GetMapping("/users")
     public ResponseEntity<?> obtenerTodosLosUsuarios() {
-        return ResponseEntity.ok(usuarioRepository.findAll());
+        List<Usuario> usuariosGenerales = usuarioRepository.findAll().stream()
+                .filter(u -> u.getRol() != Rol.ADMIN)
+                .collect(Collectors.toList());
+                
+        return ResponseEntity.ok(usuariosGenerales);
     }
 
     @PutMapping("/users/rol")
@@ -171,7 +184,6 @@ public class AuthController {
                 u.setPassword(passwordEncoder.encode(password));
             }
 
-            // NUEVO: Atrapamos y guardamos el rol y especialidad en el mismo paso
             String rol = body.get("rol");
             if (rol != null) {
                 u.setRol(Rol.valueOf(rol.toUpperCase()));
@@ -215,5 +227,10 @@ public class AuthController {
                         "especialidad", u.getEspecialidad().name()
                 )))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/especialidades")
+    public ResponseEntity<?> obtenerEspecialidades() {
+        return ResponseEntity.ok(Especialidad.values());
     }
 }
