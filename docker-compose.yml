@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8082:8082"
+    networks:
+      - rednorte-network
+    depends_on:
+      - auth-service
+      - waitlist-service
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "8080:8080"
+    networks:
+      - rednorte-network
+
+  waitlist-service:
+    build:
+      context: ./waitlist-service
+      dockerfile: Dockerfile
+    container_name: waitlist-service
+    ports:
+      - "8083:8083"
+    networks:
+      - rednorte-network
+
+  doctor-service:
+    build:
+      context: ./doctor-service
+      dockerfile: Dockerfile
+    container_name: doctor-service
+    ports:
+      - "8081:8081"
+    networks:
+      - rednorte-network
+
+networks:
+  rednorte-network:
+    driver: bridge
