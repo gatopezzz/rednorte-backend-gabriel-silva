@@ -1,28 +1,27 @@
 package com.rednorte.doctor_service.controller;
 
+import com.rednorte.doctor_service.client.WaitlistClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/api/doctor")
 public class DoctorController {
 
     @Autowired
-    private RestTemplate restTemplate;
+    private WaitlistClient waitlistClient;
 
     @GetMapping("/mi-lista/{especialidad}")
     public ResponseEntity<?> obtenerMiLista(@PathVariable String especialidad) {
-        String url = "http://localhost:8083/api/waitlist/especialidad/" + especialidad;
-        Object[] pacientes = restTemplate.getForObject(url, Object[].class);
-        return ResponseEntity.ok(pacientes);
+        // Feign se encarga de hacer la petición HTTP por debajo
+        return ResponseEntity.ok(waitlistClient.obtenerPorEspecialidad(especialidad));
     }
 
     @PatchMapping("/atender/{id}")
     public ResponseEntity<?> atenderPaciente(@PathVariable Long id) {
-        String url = "http://localhost:8083/api/waitlist/" + id + "/atender";
-        restTemplate.patchForObject(url, null, String.class);
+        // Llamamos al otro microservicio limpiamente
+        waitlistClient.atenderPaciente(id);
         return ResponseEntity.ok().body("{\"mensaje\": \"Paciente atendido\"}");
     }
 }

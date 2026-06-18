@@ -24,6 +24,13 @@ spring:
           filters:
             - AuthenticationFilter
 
+        - id: tutoria-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/tutorias/**
+          filters:
+            - AuthenticationFilter
+
       globalcors:
         cors-configurations:
           '[/**]':

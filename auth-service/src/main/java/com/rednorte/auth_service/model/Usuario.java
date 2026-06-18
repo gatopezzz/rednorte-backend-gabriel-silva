@@ -11,6 +11,9 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "tutor_id")
+    private Long tutorId;
     
     private String rut;
     private String nombre;
@@ -27,4 +30,11 @@ public class Usuario {
 
     @Enumerated(EnumType.STRING)
     private Especialidad especialidad = Especialidad.NINGUNA;
+
+    
+    @Column(name = "edad")
+    private Integer edad;
+
+    @Column(name = "mensaje_notificacion", length = 500)
+    private String mensajeNotificacion;
 }

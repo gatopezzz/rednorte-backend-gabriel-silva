@@ -1,0 +1,69 @@
+package com.rednorte.auth_service.controller;
+
+import com.rednorte.auth_service.model.SolicitudTutoria;
+import com.rednorte.auth_service.service.SolicitudTutoriaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+// ⚠️ ATENCIÓN: Cambiado a /api/auth/tutoria para que conecte perfecto con Axios
+@RequestMapping("/api/auth/tutoria") 
+@CrossOrigin(origins = "*")
+public class SolicitudTutoriaController {
+
+    @Autowired
+    private SolicitudTutoriaService solicitudTutoriaService;
+
+    @PostMapping("/solicitar")
+    public ResponseEntity<?> crearSolicitud(
+            @RequestParam Long idSolicitante, 
+            @RequestParam String emailPaciente) {
+        try {
+            SolicitudTutoria nuevaSolicitud = solicitudTutoriaService.crearSolicitud(idSolicitante, emailPaciente);
+            return ResponseEntity.ok(nuevaSolicitud);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/enviadas/{idSolicitante}")
+    public ResponseEntity<List<SolicitudTutoria>> obtenerEnviadas(@PathVariable Long idSolicitante) {
+        List<SolicitudTutoria> enviadas = solicitudTutoriaService.obtenerSolicitudesEnviadas(idSolicitante);
+        return ResponseEntity.ok(enviadas);
+    }
+
+    // Usamos idUsuario porque React necesita recibir tanto las enviadas como las recibidas
+    @GetMapping("/pendientes/{idUsuario}")
+    public ResponseEntity<List<SolicitudTutoria>> obtenerPendientes(@PathVariable Long idUsuario) {
+        List<SolicitudTutoria> pendientes = solicitudTutoriaService.obtenerSolicitudesPendientes(idUsuario);
+        return ResponseEntity.ok(pendientes);
+    }
+
+    @PostMapping("/responder")
+    public ResponseEntity<?> responderSolicitud(
+            @RequestParam Long idSolicitud, 
+            @RequestParam boolean aceptada) {
+        try {
+            String estado = aceptada ? "ACEPTADA" : "RECHAZADA";
+            SolicitudTutoria actualizada = solicitudTutoriaService.responderSolicitud(idSolicitud, estado);
+            return ResponseEntity.ok(actualizada);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // --- NUEVO ENDPOINT PARA CANCELAR/ELIMINAR ---
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<?> eliminarTutoria(@PathVariable Long id) {
+        try {
+            solicitudTutoriaService.eliminarSolicitud(id);
+            return ResponseEntity.ok(Map.of("mensaje", "Tutoría eliminada con éxito"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+}
